@@ -172,14 +172,45 @@ async function run() {
 
     });
 
-    // app.post('/about', async (req, res) => {
+    // Add a new About entry
+    app.post('/about', async (req, res) => {
+      const aboutData = req.body;
 
-    //   const aboutUpdate = req.body;
+      // Validate the request body
+      if (!aboutData.subtitle || !aboutData.url || !aboutData.details) {
+        return res.status(400).send({ message: 'subtitle, url, and details are required' });
+      }
 
-    //   const result = await about.insertOne(aboutUpdate);
-    //   res.send(result);
-    // });
+      try {
+        const result = await about.insertOne(aboutData);
+        res.send({
+          message: 'About entry added successfully',
+          insertedId: result.insertedId,
+        });
+      } catch (error) {
+        console.error('Error adding about entry:', error);
+        res.status(500).send({ message: 'Internal server error' });
+      }
+    });
 
+    // DELETE /about/:id
+    app.delete('/about/:id', async (req, res) => {
+      const id = req.params.id;
+
+      try {
+        const query = { _id: new ObjectId(id) };
+        const result = await about.deleteOne(query);
+
+        if (result.deletedCount === 1) {
+          res.status(200).json({ message: 'Video deleted successfully' });
+        } else {
+          res.status(404).json({ message: 'Video not found' });
+        }
+      } catch (error) {
+        console.error('Error deleting video:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    });
 
 
 
@@ -235,11 +266,11 @@ async function run() {
 
     app.get('/storySection/:id', async (req, res) => {
       const id = req.params.id;
-      const query = { _id: new ObjectId(id) }
-      const result = await storySectionUpdate.findOne(query);
-      res.send(result);
-
-    })
+      if (!ObjectId.isValid(id)) return res.status(400).json({ error: 'Invalid ID' });
+      const story = await storySectionUpdate.findOne({ _id: new ObjectId(id) });
+      if (!story) return res.status(404).json({ message: 'Story not found' });
+      res.send(story);
+    });
 
     app.patch('/storySection/:id', async (req, res) => {
       const id = req.params.id;
@@ -278,6 +309,38 @@ async function run() {
       const result = await storySectionUpdate.insertOne(portfolioImage);
       res.send(result);
     });
+
+
+    // DELETE a story by id
+    app.delete('/storySection/:id', async (req, res) => {
+      const id = req.params.id;
+
+      // Validate ObjectId
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).json({ message: "Invalid ID" });
+      }
+
+      try {
+        const query = { _id: new ObjectId(id) };
+        const result = await storySectionUpdate.deleteOne(query);
+
+        if (result.deletedCount === 1) {
+          res.status(200).json({ message: "Story deleted successfully" });
+        } else {
+          res.status(404).json({ message: "Story not found" });
+        }
+      } catch (error) {
+        console.error("Error deleting story:", error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    });
+
+
+
+
+
+
+
 
 
     //  Review Section....................................
