@@ -193,6 +193,7 @@ async function run() {
       }
     });
 
+
     // DELETE /about/:id
     app.delete('/about/:id', async (req, res) => {
       const id = req.params.id;
@@ -497,4 +498,4 @@ app.listen(port, () => {
   console.log(`Omar is sitting on port ${port}`);
 })
 
-export default app;
+
