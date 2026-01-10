@@ -6,7 +6,10 @@ const port = process.env.PORT || 5000;
 
 
 //middlewares ..........
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE']
+}));
 app.use(express.json());
 
 
